@@ -1702,7 +1702,20 @@ function printColorPage(sectionId, title) {
           y += 6;
         });
       }
-      doc.save((title||'rapport').replace(/\s+/g,'_') + '.pdf');
+      // Téléchargement forcé via blob (compatible Android WebView)
+      var pdfBlob = doc.output('blob');
+      var blobUrl = URL.createObjectURL(pdfBlob);
+      var fileName = (title||'rapport').replace(/\s+/g,'_') + '.pdf';
+      var a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }, 2000);
       return;
     } catch(e) { console.warn('jsPDF error:', e); }
   }
